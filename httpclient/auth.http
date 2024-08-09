@@ -1,0 +1,29 @@
+@url_dev=http://localhost:5054/api/v1
+### Register
+POST {{url_dev}}/auth/register
+Content-Type: application/json
+
+{
+    "email": "workingatgems1@gmail.com",
+    "password": "timeisnedless",
+    "name": "Gems English School"
+}
+
+
+### Login
+POST {{url_dev}}/auth/login
+Content-Type: application/json
+
+{
+    "email":"workingatgems1@gmails.com",
+    "password": "timeisnedless"
+   
+}
+### index
+GET {{url_dev}}/errorssss
+
+
+
+### Shop
+GET {{url_dev}}/shop
+x-api-key: 123456

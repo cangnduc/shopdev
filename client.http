@@ -1,0 +1,2 @@
+// Method: GET Index page
+GET http://localhost:5055
