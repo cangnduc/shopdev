@@ -4,6 +4,7 @@ const keyTokenSchema = require("../models/keyToken.model.js");
 const userSchema = require("../models/user.js");
 const shopSchema = require("../models/shop.model.js");
 const router = express.Router();
+const nodemailer = require("nodemailer");
 const redisClient = require("../database/redis");
 const uaparser = require("../middlewares/uaparser");
 const { asyncHandler } = require("../middlewares/asyncHandler.js");
@@ -31,6 +32,11 @@ router.get(
     });
   })
 );
+router.get("/sendmail", async (req, res) => {
+  res.json({
+    message: "Email sent",
+  });
+});
 router.get("/delete", async (req, res) => {
   //const apikeys = await apikeySchema.deleteMany({});
   const keyTokens = await keyTokenSchema.deleteMany({});

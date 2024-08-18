@@ -41,6 +41,16 @@ class AuthController {
       new SuccessResponse({ ...result }).send(res);
     }
   }
+  async verify(req, res) {
+    let device = req.ua;
+    device = device?.os?.name;
+    const { email, code } = req.body;
+    if (!email || !code) {
+      throw new ForbiddenError("Email and code are required");
+    }
+    const result = await AuthService.verify(email, code, device);
+    new SuccessResponse({ ...result }).send(res);
+  }
 }
 
 module.exports = wrapAsyncRoutes(new AuthController());

@@ -8,6 +8,7 @@ const _ = require("lodash");
 const JWT = require("jsonwebtoken");
 const { SuccessResponse } = require("../helpers/SuccessResponse");
 const redisClient = require("../database/redis");
+const sendMail = require("../helpers/sendMail");
 const {
   ErorrResponse,
   NotFoundError,
@@ -102,44 +103,120 @@ class AuthService {
 
     if (newShop) {
       // generate public and private key pair, type of object is Buffer
-      const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
-        modulusLength: 4096,
-        publicKeyEncoding: {
-          type: "spki",
-          format: "pem",
-        },
-        privateKeyEncoding: {
-          type: "pkcs8",
-          format: "pem",
-        },
-      });
 
-      const tokens = tokenGenerator(
-        { id: newShop._id, email: newShop.email, roles: newShop.roles, device },
-        privateKey
+      // generate 8 digit code randomlly
+      const code = Math.floor(10000000 + Math.random() * 90000000);
+      newShop.confirmCode = code;
+      newShop.confirmCodeExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+      // send email to shop
+      const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Welcome</title>
+      </head>
+      <body>
+        <h1>Welcome to ShopDev</h1>
+        <p>Thank you for joining us</p>
+          <p>Let's start building your shop</p>
+          <p>Best Regards</p>
+          <p>Here is the confirmation code: ${code}</p>
+      </body>
+      </html>
+      `;
+      const result = await sendMail(
+        newShop.email,
+        "Registration Confirm",
+        html
       );
-      // generate public key string and save {userId, publicKey} in keytoken collection
-      const publicKeyString = await KeyTokenService.generateKeyToken({
-        shopId: newShop._id,
-        publicKey,
-        privateKey,
-        refreshToken: tokens.refreshToken,
-        device,
-      });
 
-      if (!publicKeyString) {
-        throw new ErorrResponse("Error generating key token");
+      if (result instanceof Error) {
+        throw new ErorrResponse("Error sending email");
       }
-      // convert public key string to public key object
-      //const publicKeyObject = crypto.createPublicKey(publicKeyString);
-      // token generator function to generate access token and refresh token
       await newShop.save();
       return {
         code: "201",
-        message: "Shop created successfully",
-        data: { shop: _.pick(newShop, ["email", "_id", "name"]), tokens },
+        message: "Shop created successfully, please verify your email",
+        data: { shop: _.pick(newShop, ["email", "_id", "name"]) },
       };
     }
+  };
+  static verify = async (email, code, device) => {
+    const shop = await shopSchema.findOne({ email });
+    if (!shop) {
+      throw new NotFoundError("Shop not found");
+    }
+    if (shop.confirmCode !== code) {
+      throw new ForbiddenError("Invalid code");
+    }
+    if (shop.confirmCodeExpires < Date.now()) {
+      throw new ForbiddenError("Code expired");
+    }
+    shop.verfify = true;
+    shop.confirmCode = null;
+    shop.confirmCodeExpires = null;
+
+    const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
+      modulusLength: 4096,
+      publicKeyEncoding: {
+        type: "spki",
+        format: "pem",
+      },
+      privateKeyEncoding: {
+        type: "pkcs8",
+        format: "pem",
+      },
+    });
+
+    const tokens = tokenGenerator(
+      { id: shop._id, email: shop.email, roles: shop.roles, device },
+      privateKey,
+      device
+    );
+    // generate public key string and save {userId, publicKey} in keytoken collection
+    const publicKeyString = await KeyTokenService.generateKeyToken({
+      shopId: shop._id,
+      publicKey,
+      privateKey,
+      refreshToken: tokens.refreshToken,
+      device,
+    });
+
+    if (!publicKeyString) {
+      throw new ErorrResponse("Error generating key token");
+    }
+    // send a welcome email
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Welcome</title>
+    </head>
+    <body>
+      <h1>Welcome to ShopDev</h1>
+      <p>Thank you for joining us</p>
+        <p>Let's start building your shop</p>
+        <p>Best Regards</p>
+    </body>
+    </html>
+    `;
+    try {
+      const result = await sendMail(shop.email, "Welcome", html);
+      console.log(result);
+      if (result instanceof Error) {
+        throw new ErorrResponse("Error sending email");
+      }
+    } catch (error) {
+      console.log(error);
+      throw new ErorrResponse("Error sending email");
+    }
+
+    await shop.save();
+    return {
+      code: "200",
+      message: "Shop verified successfully",
+      data: { shop: _.pick(shop, ["email", "roles", "name"]), tokens },
+    };
   };
   static refreshToken = async (refreshToken, device) => {
     try {

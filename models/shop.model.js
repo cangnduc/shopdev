@@ -15,6 +15,12 @@ const shopSchema = new Schema(
       type: Schema.Types.Boolean,
       default: false,
     },
+    confirmCode: {
+      type: String,
+    },
+    confirmCodeExpires: {
+      type: Date,
+    },
     roles: {
       type: Array,
       default: [],
