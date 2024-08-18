@@ -1,19 +1,59 @@
 "use strict";
-const {wrapAsyncRoutes} = require("../middlewares/asyncHandler");
-const keyTokenSchema = require("../models/keytoken.model");
-class KeyTokenService {
-  static generateKeyToken = async ({ shopId, publicKey, privateKey, refreshToken }) => {
-    try {
-      // const publicKeyString = publicKey.toString();
-      // const privateKeyString = privateKey.toString();
-      // const tokens = await keyTokenSchema.create({ user: userId, publicKey: publicKeyString, privateKey: privateKeyString });
-      // return tokens ? tokens.publicKey : null;
+const SuccessResponse = require("../helpers/SuccessResponse");
+const { wrapAsyncRoutes } = require("../middlewares/asyncHandler");
+const keyTokenSchema = require("../models/keyToken.model");
 
-      const filter = { shop: shopId };
-      const update = { publicKey, privateKey, refreshTokenUsed: [], refreshToken };
-      const options = { new: true, upsert: true };
-      const tokens = await keyTokenSchema.findOneAndUpdate(filter, update, options);
-      return tokens ? tokens.publicKey : null;
+/* this is the keyTokenSchema
+  const keyTokenSchema = new Schema(
+  {
+    shop: { type: Schema.Types.ObjectId, ref: "Shop", required: true },
+    publicKey: { type: String, required: true },
+    privateKey: { type: String, required: true },
+    refreshTokenUsed: [
+      {
+        token: { type: String, required: true },
+        device: { type: String, required: true },
+        createAt: { type: Date, default: Date.now, expires: 60 * 60 * 24 * 7 },
+      },
+    ],
+    refreshTokens: [
+      {
+        token: { type: String, required: true },
+        device: { type: String, required: true },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  }
+);
+*/
+
+class KeyTokenService {
+  static generateKeyToken = async ({
+    shopId,
+    publicKey,
+    privateKey,
+    refreshToken,
+    device,
+  }) => {
+    try {
+      const keyshop = await keyTokenSchema.findOneAndUpdate(
+        { shop: shopId },
+        {
+          $push: {
+            refreshTokens: { device, token: refreshToken },
+          },
+          $setOnInsert: {
+            publicKey: publicKey,
+            privateKey: privateKey,
+          },
+        },
+        { upsert: true, new: true }
+      );
+
+      return keyshop ? keyshop.publicKey : null;
     } catch (error) {
       return {
         code: "xxxx",
@@ -22,24 +62,65 @@ class KeyTokenService {
     }
   };
   static findByShopId = async (shopId) => {
-    const tokens = await keyTokenSchema.findOne({ shop: shopId }).lean();
-    return tokens;
+    const keyshop = await keyTokenSchema.findOne({ shop: shopId });
+    return keyshop;
   };
-  static deleteByShopId = async (shopId) => {
-    const result = await keyTokenSchema.deleteOne({ _id: shopId });
+  static deleteByKeyShop = async (keyshop, refreshToken) => {
+    try {
+      keyshop.refreshTokens = keyshop.refreshTokens.filter(
+        (token) => token !== refreshToken
+      );
 
-    return result;
+      await keyshop.save();
+
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   };
+
   static findByRefreshTokenUsed = async (refreshToken) => {
-    return await keyTokenSchema.findOne({ refreshTokenUsed: refreshToken }).lean();
+    return await keyTokenSchema
+      .findOne({
+        "refreshTokenUsed.token": refreshToken,
+      })
+      .lean();
   };
-  static findByRefreshToken = async(refreshToken) => {
-    return await keyTokenSchema.findOne({ refreshToken })
-  }
-  static updateRefreshTokenUsed = async (_id, refreshToken) => {
-    const result = await keyTokenSchema.updateOne({ _id }, { $push: { refreshTokenUsed: refreshToken } });
-    console.log(result);
-    return result;
-  }
+  static findByRefreshToken = async (refreshToken) => {
+    return await keyTokenSchema.findOne({
+      "refreshTokens.token": refreshToken,
+    });
+  };
+  static updateRefreshTokenUsed = async (
+    foundKeyToken,
+    refreshToken,
+    device
+  ) => {
+    // add refresh token to refreshTokensUsed array
+    foundKeyToken.refreshTokenUsed.push({
+      token: refreshToken,
+      device: device,
+    });
+    await foundKeyToken.save();
+    return true;
+  };
+  static updateRefreshTokens = async (
+    foundKeyToken,
+    newRefreshToken,
+    refreshToken,
+    device
+  ) => {
+    // remove and  add new refresh token to refreshTokens array (or
+    // the refresh token with new refresh token)
+    foundKeyToken.refreshTokens = foundKeyToken.refreshTokens.filter(
+      (token) => token.token !== refreshToken
+    );
+    foundKeyToken.refreshTokens.push({
+      token: newRefreshToken,
+      device: device,
+    });
+    await foundKeyToken.save();
+    return true;
+  };
 }
 module.exports = KeyTokenService;
