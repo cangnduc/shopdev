@@ -8,7 +8,7 @@ const _ = require("lodash");
 const JWT = require("jsonwebtoken");
 const { SuccessResponse } = require("../helpers/SuccessResponse");
 const redisClient = require("../database/redis");
-const sendMail = require("../helpers/sendMail");
+const sendMail = require("../helpers/sendmail");
 const {
   ErorrResponse,
   NotFoundError,
