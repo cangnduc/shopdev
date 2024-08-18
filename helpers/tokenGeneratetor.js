@@ -1,9 +1,15 @@
 "use strict";
-const jwt  = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const tokenGenerator = (payload, publicKey, privateKey) => {
   try {
-    const accessToken =  jwt.sign(payload, privateKey, { algorithm: "RS256", expiresIn: "1d" });
-    const refreshToken =  jwt.sign(payload, privateKey, { algorithm: "RS256", expiresIn: "7d" });
+    const accessToken = jwt.sign(payload, privateKey, {
+      algorithm: "RS256",
+      expiresIn: "1d",
+    });
+    const refreshToken = jwt.sign(payload, privateKey, {
+      algorithm: "RS256",
+      expiresIn: "7d",
+    });
     // jwt.verify(accessToken, publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
     //     if(err) {
     //         console.log(err);
@@ -14,10 +20,11 @@ const tokenGenerator = (payload, publicKey, privateKey) => {
   } catch (error) {
     return {
       code: "404",
-      
+
       message: error.message,
     };
   }
 };
 
 module.exports = tokenGenerator;
+// add here
