@@ -65,26 +65,23 @@ class KeyTokenService {
     const keyshop = await keyTokenSchema.findOne({ shop: shopId });
     return keyshop;
   };
-  static deleteByKeyShop = async (keyshop, refreshToken) => {
+  static deleteByKeyShop = async (refreshTokenId) => {
     try {
-      keyshop.refreshTokens = keyshop.refreshTokens.filter(
-        (token) => token !== refreshToken
+      // delete the refresh token from the refreshTokens array that mathces
+      // the refreshTokenId
+      await keyTokenSchema.updateOne(
+        { "refreshTokens._id": refreshTokenId },
+        { $pull: { refreshTokens: { _id: refreshTokenId } } }
       );
-
-      await keyshop.save();
-
-      return true;
     } catch (error) {
       throw new Error(error.message);
     }
   };
 
   static findByRefreshTokenUsed = async (refreshToken) => {
-    return await keyTokenSchema
-      .findOne({
-        "refreshTokenUsed.token": refreshToken,
-      })
-      .lean();
+    return await keyTokenSchema.findOne({
+      "refreshTokenUsed.token": refreshToken,
+    });
   };
   static findByRefreshToken = async (refreshToken) => {
     return await keyTokenSchema.findOne({
@@ -96,8 +93,13 @@ class KeyTokenService {
     refreshToken,
     device
   ) => {
+    //get the _id of the refresh token in the refreshTokens array
+    const refreshTokenId = foundKeyToken.refreshTokens.find(
+      (token) => token.token === refreshToken
+    );
     // add refresh token to refreshTokensUsed array
     foundKeyToken.refreshTokenUsed.push({
+      _id: refreshTokenId._id,
       token: refreshToken,
       device: device,
     });
@@ -110,15 +112,21 @@ class KeyTokenService {
     refreshToken,
     device
   ) => {
-    // remove and  add new refresh token to refreshTokens array (or
-    // the refresh token with new refresh token)
-    foundKeyToken.refreshTokens = foundKeyToken.refreshTokens.filter(
-      (token) => token.token !== refreshToken
-    );
-    foundKeyToken.refreshTokens.push({
-      token: newRefreshToken,
-      device: device,
+    //update the refresh token with newRefreshToken in the refreshTokens array
+    foundKeyToken.refreshTokens = foundKeyToken.refreshTokens.map((token) => {
+      if (token.token === refreshToken) {
+        token.token = newRefreshToken;
+        token.device = device;
+      }
+      return token;
     });
+    // foundKeyToken.refreshTokens = foundKeyToken.refreshTokens.filter(
+    //   (token) => token.token !== refreshToken
+    // );
+    // foundKeyToken.refreshTokens.push({
+    //   token: newRefreshToken,
+    //   device: device,
+    // });
     await foundKeyToken.save();
     return true;
   };

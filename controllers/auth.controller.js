@@ -41,6 +41,15 @@ class AuthController {
       new SuccessResponse({ ...result }).send(res);
     }
   }
+  async genShopKey(req, res) {
+    let device = req.ua;
+    device = device?.os?.name;
+    const result = await AuthService.genShopKey(
+      "workingatgems@gmail.com",
+      device
+    );
+    new SuccessResponse({ ...result }).send(res);
+  }
   async verify(req, res) {
     let device = req.ua;
     device = device?.os?.name;

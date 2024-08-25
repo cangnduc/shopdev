@@ -9,7 +9,7 @@ class SuccessResponse {
     return res.status(this.code).json({
       message: this.message,
       data: this.data,
-      code: this.code,
+      status: this.status,
     });
   }
 }

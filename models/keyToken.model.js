@@ -1,5 +1,5 @@
 const { model, Schema } = require("mongoose");
-
+const cron = require("node-cron");
 const keyTokenSchema = new Schema(
   {
     shop: { type: Schema.Types.ObjectId, ref: "Shop", required: true },
@@ -7,17 +7,15 @@ const keyTokenSchema = new Schema(
     privateKey: { type: String, required: true },
     refreshTokenUsed: [
       {
+        _id: { type: Schema.Types.ObjectId, ref: "refreshTokens" },
         token: { type: String, required: true },
         device: { type: String },
-        createAt: { type: Date, default: Date.now, expires: 60 * 60 * 24 * 7 },
       },
     ],
     refreshTokens: [
       {
         token: { type: String, required: true },
         device: { type: String },
-        createdAt: { type: Date, default: Date.now },
-        expires: { type: Date, default: Date.now, expires: 60 * 60 * 24 * 7 }, // 7 days
       },
     ],
   },
@@ -25,5 +23,21 @@ const keyTokenSchema = new Schema(
     timestamps: true,
   }
 );
-
+// delete every minute
+const schedule = "*/1 * * * *";
+// cron.schedule("*/1 * * * *", async () => {
+//   const now = new Date();
+//   console.log("running a task every minute");
+//   const sevenDaysAgo = new Date(now - 60 * 1000);
+//   await keyTokenSchema.updateMany(
+//     {},
+//     {
+//       $pull: {
+//         refreshTokenUsed: { createdAt: { $lt: sevenDaysAgo } },
+//         refreshTokens: { createdAt: { $lt: sevenDaysAgo } },
+//       },
+//     }
+//   );
+//   console.log("Cron Job: Delete expired tokens");
+// });
 module.exports = model("Key", keyTokenSchema);

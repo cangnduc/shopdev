@@ -8,6 +8,7 @@ const _ = require("lodash");
 const JWT = require("jsonwebtoken");
 const { SuccessResponse } = require("../helpers/SuccessResponse");
 const redisClient = require("../database/redis");
+const keyTokenSchema = require("../models/keyToken.model");
 const sendMail = require("../helpers/sendmail");
 const {
   ErorrResponse,
@@ -15,6 +16,7 @@ const {
   ForbiddenError,
 } = require("../helpers/errorResponse");
 const { error } = require("console");
+const { date } = require("zod");
 const RolesShop = {
   SHOP: "shop",
   WRITER: "writer",
@@ -141,6 +143,36 @@ class AuthService {
       };
     }
   };
+  static genShopKey = async (email, device) => {
+    const shop = await shopSchema.findOne({ email });
+
+    const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
+      modulusLength: 4096,
+      publicKeyEncoding: {
+        type: "spki",
+        format: "pem",
+      },
+      privateKeyEncoding: {
+        type: "pkcs8",
+        format: "pem",
+      },
+    });
+
+    const tokens = tokenGenerator(
+      { id: shop._id, email: shop.email, roles: shop.roles, device },
+      privateKey,
+      device
+    );
+    // generate public key string and save {userId, publicKey} in keytoken collection
+    const publicKeyString = await KeyTokenService.generateKeyToken({
+      shopId: shop._id,
+      publicKey,
+      privateKey,
+      refreshToken: tokens.refreshToken,
+      device,
+    });
+    return publicKeyString;
+  };
   static verify = async (email, code, device) => {
     const shop = await shopSchema.findOne({ email });
     if (!shop) {
@@ -153,8 +185,8 @@ class AuthService {
       throw new ForbiddenError("Code expired");
     }
     shop.verfify = true;
-    shop.confirmCode = null;
-    shop.confirmCodeExpires = null;
+    shop.confirmCode = undefined;
+    shop.confirmCodeExpires = undefined;
 
     const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
       modulusLength: 4096,
@@ -232,8 +264,19 @@ class AuthService {
               if (err) {
                 reject(new ForbiddenError("Invalid refresh token"));
               }
-              // handle case refreshtoken is used by someone else. it's stolen
-              console.log("refresh token used");
+              // delete the refresh token from refreshTokens array that matches
+              // foundkeyTokenUsed.refreshTokenUsed._id
+              //get the _id of the refresh token in the refreshTokensused array
+              const refreshTokenId = foundKeyTokenUsed.refreshTokenUsed.find(
+                (token) => token.token === refreshToken
+              );
+              // remove the refresh token from refreshTokensused array
+              await keyTokenSchema.updateOne(
+                { "refreshTokenUsed._id": refreshTokenId._id },
+                { $pull: { refreshTokenUsed: { _id: refreshTokenId._id } } }
+              );
+              await KeyTokenService.deleteByKeyShop(refreshTokenId._id);
+
               reject(new ForbiddenError("Refresh token is stolen"));
             }
           );
@@ -290,7 +333,7 @@ class AuthService {
               );
               console.log("update refresh token");
               resolve({
-                code: "200",
+                code: 200,
                 message: "Refresh token successfully",
                 data: {
                   shop: _.pick(shop, ["email", "roles", "name"]),
