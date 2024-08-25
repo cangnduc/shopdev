@@ -13,21 +13,35 @@ const authentication = asyncHandler(async (req, res, next) => {
     */
 
   const shopID = req.headers["shop-id"];
-  if (!shopID) throw new UnauthorizedError((message = "Shop ID is required to logout"));
+  if (!shopID) throw new UnauthorizedError((message = "Shop ID is required"));
   try {
     const keyShop = await KeyStore.findByShopId(shopID);
-    if (!keyShop) throw new UnauthorizedError((message = "Shop ID is not valid or not found"));
+    if (!keyShop)
+      throw new UnauthorizedError(
+        (message = "Shop ID is not valid or not found")
+      );
 
     const accessToken = req.headers["authorization"];
 
-    if (!accessToken) throw new UnauthorizedError((message = "Access token is required to logout"));
-    JWT.verify(accessToken, keyShop.publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
-    
-      if (err) throw new UnauthorizedError((message = "Access token is not valid"));
-      if (decoded.id !== shopID) throw new UnauthorizedError((message = "Shop ID is not valid"));
-      req.keyShop = keyShop;
-      return next();
-    });
+    if (!accessToken)
+      throw new UnauthorizedError(
+        (message = "Access token is required to logout")
+      );
+    JWT.verify(
+      accessToken,
+      keyShop.publicKey,
+      { algorithms: ["RS256"] },
+      (err, decoded) => {
+        if (err)
+          throw new UnauthorizedError((message = "Access token is not valid"));
+        if (decoded.id !== shopID)
+          throw new UnauthorizedError((message = "Shop ID is not valid"));
+        req.keyShop = keyShop;
+        req.user = decoded;
+
+        return next();
+      }
+    );
   } catch (error) {
     throw new UnauthorizedError((message = error?.message));
   }

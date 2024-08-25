@@ -4,10 +4,11 @@ const keyTokenSchema = require("../models/keytoken.model.js");
 const userSchema = require("../models/user.js");
 const shopSchema = require("../models/shop.model.js");
 const router = express.Router();
-const  {asyncHandler}  = require("../middlewares/asyncHandler.js");
+const { authentication } = require("../middlewares/authentication");
+const { asyncHandler } = require("../middlewares/asyncHandler.js");
 router.use("/auth", require("./auth.route.js"));
-router.use("/shop", require("./shop.route.js"));
-router.get("/", async (req, res) => { 
+router.use("/shop", authentication, require("./shop.route.js"));
+router.get("/", async (req, res) => {
   res.json({
     message: "Welcome to Shopdev API",
   });
@@ -16,7 +17,11 @@ router.get(
   "/error",
   asyncHandler(async (req, res, next) => {
     a;
-    const apikeys = await apikeySchema.create({ key: "123456", status: true, permissions: ["1111"] });
+    const apikeys = await apikeySchema.create({
+      key: "123456",
+      status: true,
+      permissions: ["1111"],
+    });
     res.json({
       apikeys,
       message: "Welcome to Shopdev API",

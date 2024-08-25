@@ -6,7 +6,11 @@ const bcrypt = require("bcryptjs");
 const tokenGenerator = require("../helpers/tokenGeneratetor");
 const _ = require("lodash");
 const JWT = require("jsonwebtoken");
-const { ErorrResponse, NotFoundError, ForbiddenError } = require("../helpers/errorResponse");
+const {
+  ErorrResponse,
+  NotFoundError,
+  ForbiddenError,
+} = require("../helpers/errorResponse");
 const RolesShop = {
   SHOP: "shop",
   WRITER: "writer",
@@ -20,7 +24,10 @@ class AuthService {
     return { code: "200", message: "Logout successfully", result };
   };
   static login = async ({ email, password, refreshToken = {} }) => {
-    const shop = await shopSchema.findOne({ email }).select({ email: 1, _id: 1, roles: 1, name: 1, password: 1 }).lean();
+    const shop = await shopSchema
+      .findOne({ email })
+      .select({ email: 1, _id: 1, roles: 1, name: 1, password: 1 })
+      .lean();
 
     if (!shop) {
       console.log("Shop not found");
@@ -44,15 +51,28 @@ class AuthService {
       },
     });
     // generate access token and refresh token
-    const tokens = tokenGenerator({ id: shop._id, email: shop.email, role: shop.roles }, publicKey, privateKey);
+    const tokens = tokenGenerator(
+      { id: shop._id, email: shop.email, role: shop.roles },
+      publicKey,
+      privateKey
+    );
 
     // generate public key string and save {userId, publicKey} in keytoken collection
-    const publicKeyString = await KeyTokenService.generateKeyToken({ shopId: shop._id, publicKey, privateKey, refreshToken: tokens.refreshToken });
+    const publicKeyString = await KeyTokenService.generateKeyToken({
+      shopId: shop._id,
+      publicKey,
+      privateKey,
+      refreshToken: tokens.refreshToken,
+    });
     if (!publicKeyString) {
       throw new ErorrResponse("Error generating key token");
     }
 
-    return { code: "200", message: "Login successfully", data: { shop: _.pick(shop, ["email", "roles", "name"]), tokens } };
+    return {
+      code: "200",
+      message: "Login successfully",
+      data: { shop: _.pick(shop, ["email", "roles", "name"]), tokens },
+    };
   };
   static register = async ({ name, email, password }) => {
     const holderShop = await shopSchema.findOne({ email }).lean();
@@ -62,7 +82,12 @@ class AuthService {
     }
     const hassedPassword = await bcrypt.hash(password, 10);
 
-    const newShop = await shopSchema.create({ name, email, password: hassedPassword, roles: [RolesShop.SHOP] });
+    const newShop = await shopSchema.create({
+      name,
+      email,
+      password: hassedPassword,
+      roles: [RolesShop.SHOP],
+    });
 
     if (newShop) {
       // generate public and private key pair, type of object is Buffer
@@ -77,9 +102,18 @@ class AuthService {
           format: "pem",
         },
       });
-      const tokens = tokenGenerator({ id: newShop._id, email: newShop.email, roles: newShop.roles }, publicKey, privateKey);
+      const tokens = tokenGenerator(
+        { id: newShop._id, email: newShop.email, roles: newShop.roles },
+        publicKey,
+        privateKey
+      );
       // generate public key string and save {userId, publicKey} in keytoken collection
-      const publicKeyString = await KeyTokenService.generateKeyToken({ shopId: newShop._id, publicKey, privateKey, refreshToken: tokens.refreshToken });
+      const publicKeyString = await KeyTokenService.generateKeyToken({
+        shopId: newShop._id,
+        publicKey,
+        privateKey,
+        refreshToken: tokens.refreshToken,
+      });
 
       if (!publicKeyString) {
         throw new ErorrResponse("Error generating key token");
@@ -88,7 +122,11 @@ class AuthService {
       //const publicKeyObject = crypto.createPublicKey(publicKeyString);
       // token generator function to generate access token and refresh token
 
-      return { code: "201", message: "Shop created successfully", data: { shop: _.pick(newShop, ["email", "_id", "name"]), tokens } };
+      return {
+        code: "201",
+        message: "Shop created successfully",
+        data: { shop: _.pick(newShop, ["email", "_id", "name"]), tokens },
+      };
     }
   };
   static refreshToken = async (refreshToken) => {
@@ -96,31 +134,44 @@ class AuthService {
     1/ check if the refresh token is used
     */
     try {
-      const refreshTokenUsedKey = await KeyTokenService.findByRefreshTokenUsed(refreshToken);
+      const refreshTokenUsedKey = await KeyTokenService.findByRefreshTokenUsed(
+        refreshToken
+      );
       if (refreshTokenUsedKey) {
-        JWT.verify(refreshToken, refreshTokenUsedKey.publicKey, { algorithms: ["RS256"] }, async (err, decoded) => {
-          if (err) {
-            throw new ForbiddenError("Refresh token is not valid 1");
-          }
+        JWT.verify(
+          refreshToken,
+          refreshTokenUsedKey.publicKey,
+          { algorithms: ["RS256"] },
+          async (err, decoded) => {
+            if (err) {
+              throw new ForbiddenError("Refresh token is not valid 1");
+            }
 
-          await KeyTokenService.deleteByShopId(refreshTokenUsedKey._id);
-          //throw an error here but app crashs
-         
-        });
-         throw new ForbiddenError("Refresh token is used");
+            await KeyTokenService.deleteByShopId(refreshTokenUsedKey._id);
+            //throw an error here but app crashs
+          }
+        );
+        throw new ForbiddenError("Refresh token is used");
       }
 
       const shopKey = await KeyTokenService.findByRefreshToken(refreshToken);
       if (!shopKey) {
-        throw new NotFoundError("You are not login or refresh token is not found");
+        throw new NotFoundError(
+          "You are not login or refresh token is not found"
+        );
       }
       const decoded = await new Promise((resolve, reject) => {
-        JWT.verify(refreshToken, shopKey.publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
-          if (err) {
-            return reject(new ForbiddenError("Refresh token is not valid 1"));
+        JWT.verify(
+          refreshToken,
+          shopKey.publicKey,
+          { algorithms: ["RS256"] },
+          (err, decoded) => {
+            if (err) {
+              return reject(new ForbiddenError("Refresh token is not valid 1"));
+            }
+            resolve(decoded);
           }
-          resolve(decoded);
-        });
+        );
       });
 
       const foundShop = await shopSchema.findById(decoded.id).lean();
@@ -128,12 +179,20 @@ class AuthService {
         throw new NotFoundError("Shop not found");
       }
       console.log("foundShop", foundShop);
-      const tokens = tokenGenerator({ id: foundShop._id, email: foundShop.email, role: foundShop.roles }, shopKey.publicKey, shopKey.privateKey);
+      const tokens = tokenGenerator(
+        { id: foundShop._id, email: foundShop.email, role: foundShop.roles },
+        shopKey.publicKey,
+        shopKey.privateKey
+      );
       // update the shopkey with new refresh token and add refresh token to used refresh token
       shopKey.refreshTokenUsed.push(refreshToken);
       shopKey.refreshToken = tokens.refreshToken;
       await shopKey.save();
-      return { code: "200", message: "Refresh token successfully", data: { shop: _.pick(foundShop, ["email", "roles", "name"]), tokens } };
+      return {
+        code: "200",
+        message: "Refresh token successfully",
+        data: { shop: _.pick(foundShop, ["email", "roles", "name"]), tokens },
+      };
     } catch (error) {
       throw new ForbiddenError(error.message);
     }
