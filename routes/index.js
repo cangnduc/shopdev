@@ -1,3 +1,5 @@
+"use strict";
+
 const express = require("express");
 const apikeySchema = require("../models/apikey.model.js");
 const keyTokenSchema = require("../models/keytoken.model.js");
@@ -6,8 +8,11 @@ const shopSchema = require("../models/shop.model.js");
 const router = express.Router();
 const { authentication } = require("../middlewares/authentication");
 const { asyncHandler } = require("../middlewares/asyncHandler.js");
+const { isApikey } = require("../services/apikey.service");
+
 router.use("/auth", require("./auth.route.js"));
-router.use("/shop", authentication, require("./shop.route.js"));
+router.use("/shop", require("./shop.route.js"));
+router.use("/product", require("./product.route"));
 router.get("/", async (req, res) => {
   res.json({
     message: "Welcome to Shopdev API",

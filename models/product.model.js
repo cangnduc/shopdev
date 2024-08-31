@@ -24,7 +24,7 @@ const productSchema = new Schema(
     quantity: { type: Number, required: true },
     shop: { type: Schema.Types.ObjectId, ref: "Shop", required: true },
     thumbnail: { type: String, required: true },
-    variation: { type: Array, default: [] },
+    variations: { type: Array, default: [] },
     attributes: { type: Schema.Types.Mixed, default: {} },
     isDraft: { type: Boolean, default: true, index: true, select: false },
     isPublished: { type: Boolean, default: false, index: true, select: false },
@@ -34,8 +34,14 @@ const productSchema = new Schema(
     timestamps: true,
   }
 );
+
+//create index for search
+//productSchema.index({ name: "text", description: "text" });
+// create a slug for the product
 productSchema.pre("save", function (next) {
-  this.slug = slugify(this.name);
+  if (this.isModified("name")) {
+    this.slug = slugify(this.name, { lower: true });
+  }
   next();
 });
 const clothingSchema = new Schema(

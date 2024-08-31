@@ -1,4 +1,5 @@
 @url_dev=http://localhost:5054/api/v1
+@access_token = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YmYxNDMxNWQ2MDg5MzBhNDViOTYwNSIsImVtYWlsIjoid29ya2luZ2F0Z2Vtc0BnbWFpbC5jb20iLCJyb2xlIjpbInNob3AiXSwiaWF0IjoxNzI1MTA5NzUxLCJleHAiOjE3MjUxOTYxNTF9.IXxRy_jYtDup7cLrcFcqmdnaMN2jk6HIkw8Zci7L3H8ii9lzQ7K2iT7qwdkB0vlPYoczQJFioMsJTz6h1oJVtz8Jg_csXNGXq92p62w1cUZf7q3bbxrRGhXwAyNQ1hfL-5NXPWmj96vDy0Bqz4keaWuDtdfCxT-CBrtpVaCLkDXIODLLYdB73Ypq2vb5qoomD9SJDvw9-6grwygdaPIshVCCaRHMpkozHosCfSnOm4lcOf281P3NULSPKJp1aZ8FHUwbfkVhucrJVSphXoRebscT99cD7GCF9roPhqkNJNr98Q86FIbanNL_Nb_Ok9iEhpzCdteswkA4aRAqAKeuP9tTR3kuTMuL2AMbisTmwDSFRNJdlHF0Oam6FaKN990UoKz0QJyxhARi4QmIm0yMEidtVSGC3fccTwPcxNIwWRT8QiuPpYgC_13CSsidVlzHCZzF_kLuFhWeuIs4lDbtUoUFt8FwAd2VOTZ8tWDxRkCLvKxXZ0_itkA11kQpDkfoZ6uXvxA9KsROptEuGsG9h2vQ03MqkmG5XuSBL5Ac9tt21C1s6nu52s7XK7v43rslufndXOP3-XP1OV_ebzgVngGIijTxh2t8VGJiyg1NP9BYqDBwcYr-CDX9FaPm6lOVSrHRqncpOnuQai1KIS4AjAOhTMOWV0uD0zfTqm3rrN8
 ### Register
 POST {{url_dev}}/auth/register
 Content-Type: application/json
@@ -15,9 +16,8 @@ POST {{url_dev}}/auth/login
 Content-Type: application/json
 
 {
-    "email":"workingatgems1@gmails.com",
-    "password": "timeisnedless"
-   
+    "email":"workingatgems@gmail.com",
+    "password":"Timeisendless"
 }
 ### index
 GET {{url_dev}}/errorssss
@@ -27,3 +27,61 @@ GET {{url_dev}}/errorssss
 ### Shop
 GET {{url_dev}}/shop
 x-api-key: 123456
+
+
+### get drafts products by shop
+GET {{url_dev}}/shop/product/drafts
+shop-id: 66bf14315d608930a45b9605
+Authorization: {{access_token}}
+
+### get published products by shop
+GET {{url_dev}}/shop/product/published
+shop-id: 66bf14315d608930a45b9605
+Authorization:  {{access_token}}
+
+### unpublish product
+PUT {{url_dev}}/shop/product/unpublish/66cf374ec54a069d811e4723
+shop-id: 66bf14315d608930a45b9605
+Authorization: {{access_token}}
+
+### toggle product draft
+PUT {{url_dev}}/shop/product/toggle/66cf374ec54a069d811e4723
+shop-id: 66bf14315d608930a45b9605
+Authorization: {{access_token}}
+
+###publish product by shop
+PUT {{url_dev}}/shop/product/publish/66cf57e57cedbd17806aed1d
+shop-id: 66bf14315d608930a45b9605
+Authorization: {{access_token}}
+
+### search published products by user
+GET {{url_dev}}/shop/product/searchs?keySearch=tablet
+
+
+### getAllProducts by user
+
+GET {{url_dev}}/shop/product
+
+
+### get product by id
+GET {{url_dev}}/shop/product/66cb4ec6205f489c7c50110c
+
+
+#### update product by id
+PATCH {{url_dev}}/shop/66d34cb985710b29cd3249fd
+shop-id: 66bf14315d608930a45b9605
+Authorization: {{access_token}}
+Content-Type: application/json
+
+{
+    "name": "iphone 15",
+    "price": 1300,
+    "description": "Iphone 15 is the best phone in the world",
+    "type": "electronic",
+    "quantity": 10,
+     "attributes": {
+       "manufacturer": "samsung",
+      
+        "model": "newest"
+    }
+}
