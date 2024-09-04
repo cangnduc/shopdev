@@ -7,6 +7,7 @@ const {
   furniture,
 } = require("../models/product.model");
 const productController = require("../controllers/product.controller");
+const DiscountController = require("../controllers/discount.controller");
 const { authentication } = require("../middlewares/authentication");
 
 router.get("/search/:keySearch", productController.searchProductByUser);
@@ -24,4 +25,5 @@ router.get("/delete", async (req, res) => {
     message: "deleted product",
   });
 });
+//router.get("/discount/:code", DiscountController.getPoroductByDiscount);
 module.exports = router;

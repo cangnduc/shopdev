@@ -1,18 +1,20 @@
 "use strict";
 
 const express = require("express");
-const apikeySchema = require("../models/apikey.model.js");
-const keyTokenSchema = require("../models/keytoken.model.js");
-const userSchema = require("../models/user.js");
-const shopSchema = require("../models/shop.model.js");
+const apikeySchema = require("../models/apikey.model");
+const keyTokenSchema = require("../models/keytoken.model");
+const userSchema = require("../models/user");
+const shopSchema = require("../models/shop.model");
 const router = express.Router();
 const { authentication } = require("../middlewares/authentication");
-const { asyncHandler } = require("../middlewares/asyncHandler.js");
+const { asyncHandler } = require("../middlewares/asyncHandler");
 const { isApikey } = require("../services/apikey.service");
 
 router.use("/auth", require("./auth.route.js"));
 router.use("/shop", require("./shop.route.js"));
 router.use("/product", require("./product.route"));
+router.use("/discount", require("./discount.route"));
+
 router.get("/", async (req, res) => {
   res.json({
     message: "Welcome to Shopdev API",
@@ -38,7 +40,7 @@ router.get("/delete", async (req, res) => {
   const keyTokens = await keyTokenSchema.deleteMany({});
   const users = await userSchema.deleteMany({});
   await shopSchema.deleteMany({});
-  if (!apikeys || !keyTokens || !users) {
+  if (!keyTokens || !users) {
     return res.status(400).json({
       message: "Error deleting apikeys, keyTokens or users",
     });

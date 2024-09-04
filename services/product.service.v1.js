@@ -1,14 +1,21 @@
+"use strict";
 const {
   product,
   clothing,
   electronic,
   furniture,
+  queryProduct,
 } = require("../models/product.model");
+const { inventory } = require("../models/inventory.model");
 const { removeNullUndefinedKeys } = require("../utils/remove.null.object");
 const updateNestedObject = require("../utils/update.nested.object");
 // import Type from mongoose
 const { Types } = require("mongoose");
 const { BadRequestError } = require("../helpers/errorResponse");
+const {
+  convertArrayToObject,
+  convertArrayToObject0,
+} = require("../utils/objectFunction");
 /*
   name: { type: String, required: true },
     price: { type: Number, required: true },
@@ -27,30 +34,7 @@ const { BadRequestError } = require("../helpers/errorResponse");
 };
 
 */
-// ["a", "b", "c"] => {a: 1, b: 1, c: 1}
-const convertArrayToObject = (array) => {
-  return array.reduce((acc, cur) => {
-    acc[cur] = 1;
-    return acc;
-  }, {});
-};
-const convertArrayToObject0 = (array) => {
-  return array.reduce((acc, cur) => {
-    acc[cur] = 0;
-    return acc;
-  }, {});
-};
 
-const queryProduct = async (query, skip, limit) => {
-  return await product
-    .find(query)
-    .populate("shop", "email -_id")
-    .sort({ updateAt: -1 })
-    .skip(skip)
-    .limit(limit)
-    .lean()
-    .exec();
-};
 const toglePublish = async (productID, shop, publish) => {
   const foundProduct = await product
     .findOne({
@@ -114,14 +98,14 @@ class ProductFactory {
       shop,
       isDraft: true,
     };
-    return await queryProduct(query, skip, litmit);
+    return await queryProduct({ query, skip, litmit });
   }
   static async findPublishedProductByShop({ shop, skip = 0, litmit = 50 }) {
     const query = {
       shop,
       isPublished: true,
     };
-    return await queryProduct(query, skip, litmit);
+    return await queryProduct({ query, skip, litmit });
   }
   static async publishProduct({ shop, productID }) {
     const result = await toglePublish(productID, shop, true);
@@ -241,12 +225,18 @@ class Product {
   // create new product
   async createProduct(id) {
     try {
-      const newProduct = product.create({
+      const newProduct = await product.create({
         ...this,
         _id: id,
       });
       if (!newProduct) {
         throw new BadRequestError("Error creating product");
+      } else {
+        const inven = await inventory.create({
+          inven_product: newProduct._id,
+          inven_stock: this.quantity,
+          inven_shop: this.shop,
+        });
       }
 
       return newProduct;

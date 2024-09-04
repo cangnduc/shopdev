@@ -4,7 +4,10 @@ const { max } = require("lodash");
 const { model, Schema } = require("mongoose");
 const slugify = require("slugify");
 const documentName = "product";
-
+const {
+  convertArrayToObject,
+  convertArrayToObject0,
+} = require("../utils/objectFunction");
 const productSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -81,11 +84,78 @@ const furnitureSchema = new Schema(
     timestamps: true,
   }
 );
+const product = model(documentName, productSchema);
+const queryProduct = async ({
+  query,
+  skip,
+  limit,
+  sort = "ctime",
+  select = [
+    "name",
+    "price",
+    "description",
+    "image",
+    "status",
+    "type",
+    "slug",
+    "rating",
+    "quantity",
+    "shop",
+    "thumbnail",
+    "variations",
+    "attributes",
+    "isDraft",
+    "isPublished",
+    "rating",
+  ],
+}) => {
+  console.log(select);
+  // select = select?.length
+  //   ? select
+  //   : [
+  //       "name",
+  //       "price",
+  //       "description",
+  //       "image",
+  //       "status",
+  //       "type",
+  //       "slug",
+  //       "rating",
+  //       "quantity",
+  //       "shop",
+  //       "thumbnail",
+  //       "variations",
+  //       "attributes",
+  //       "isDraft",
+  //       "isPublished",
+  //       "rating",
+  //     ];
+  // sort = 'ctime' | 'rating' | 'price', if ctime, sort by created time, if rating, sort by rating, if price, sort by price
+  const sort_item = {};
+  if (sort === "ctime") {
+    sort_item.ctime = -1;
+  } else if (sort === "rating") {
+    sort_item.rating = -1;
+  } else if (sort === "price") {
+    sort_item.price = 1;
+  }
+
+  return await product
+    .find(query)
+    .populate("shop", "email -_id")
+    .sort(sort_item)
+    .skip(skip)
+    .limit(limit)
+    .select(convertArrayToObject(select))
+    .lean()
+    .exec();
+};
 module.exports = {
-  product: model(documentName, productSchema),
+  product,
   clothing: model("clothing", clothingSchema),
   electronic: model("electronic", electronicSchema),
   furniture: model("furniture", furnitureSchema),
+  queryProduct,
 };
 
 //generate an example of a product as json

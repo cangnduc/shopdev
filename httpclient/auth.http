@@ -1,5 +1,5 @@
 @url_dev=http://localhost:5054/api/v1
-@access_token = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YmYxNDMxNWQ2MDg5MzBhNDViOTYwNSIsImVtYWlsIjoid29ya2luZ2F0Z2Vtc0BnbWFpbC5jb20iLCJyb2xlIjpbInNob3AiXSwiaWF0IjoxNzI1MTA5NzUxLCJleHAiOjE3MjUxOTYxNTF9.IXxRy_jYtDup7cLrcFcqmdnaMN2jk6HIkw8Zci7L3H8ii9lzQ7K2iT7qwdkB0vlPYoczQJFioMsJTz6h1oJVtz8Jg_csXNGXq92p62w1cUZf7q3bbxrRGhXwAyNQ1hfL-5NXPWmj96vDy0Bqz4keaWuDtdfCxT-CBrtpVaCLkDXIODLLYdB73Ypq2vb5qoomD9SJDvw9-6grwygdaPIshVCCaRHMpkozHosCfSnOm4lcOf281P3NULSPKJp1aZ8FHUwbfkVhucrJVSphXoRebscT99cD7GCF9roPhqkNJNr98Q86FIbanNL_Nb_Ok9iEhpzCdteswkA4aRAqAKeuP9tTR3kuTMuL2AMbisTmwDSFRNJdlHF0Oam6FaKN990UoKz0QJyxhARi4QmIm0yMEidtVSGC3fccTwPcxNIwWRT8QiuPpYgC_13CSsidVlzHCZzF_kLuFhWeuIs4lDbtUoUFt8FwAd2VOTZ8tWDxRkCLvKxXZ0_itkA11kQpDkfoZ6uXvxA9KsROptEuGsG9h2vQ03MqkmG5XuSBL5Ac9tt21C1s6nu52s7XK7v43rslufndXOP3-XP1OV_ebzgVngGIijTxh2t8VGJiyg1NP9BYqDBwcYr-CDX9FaPm6lOVSrHRqncpOnuQai1KIS4AjAOhTMOWV0uD0zfTqm3rrN8
+@access_token = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YmYxNDMxNWQ2MDg5MzBhNDViOTYwNSIsImVtYWlsIjoid29ya2luZ2F0Z2Vtc0BnbWFpbC5jb20iLCJyb2xlIjpbInNob3AiXSwiaWF0IjoxNzI1NDYyNzk5LCJleHAiOjE3MjU1NDkxOTl9.FAaoo7mSg6cK0KpaJ6Fb5BX-uPnl67af8QnCJX8Zr0Oatf7Q3GneZMKJhmXaMCRCAUWrdvoqyDAfHaASePm_4b11nZdAsvzts9W8vmy6YqeRUv_WTqj-dtPLIJaSxHJhST2njGFgUgi-HCfDwkLv5ifJHJFjtmt6t7tASTfPODTEYSptnRQYbNVBepohTxmWDuIosS4ciHZqcbXOGIDXqwZtM7qunnhDxwMmt8bLYdDRnh4nyCrYCP9md5h9gL4vndm0cSx7xOp_JSqI6GOCfvLn8OTgdvgm3_rgFRs5Zm4CEeNr_z-Iv9PKumIQMdwdcbT3b8OK-EjaxT1_evpFI0OVUjwra80oHwPyxkoEB1YGwLWfcmPmTvxjJWZ96z-IRZcFnyPMtWP9PPgG3yprfWhhowXbV0efLUGj__ALuttMZRLJr-1gSPJJgRFVHlzx9SxFFzU9cvP2h69ZHRTWdjD657nh38aaLfUUxLbitPDRaZFRqpDDVP9L9p5FST2PwT0gAtDZJPejRimupIATqRyBcTevJnCNdVZT1Js9ii6T3ckyUIccX2c3Um-LFYE_QlGdBWKi3iqaq97l8MgN2NjvmMYUMUXJtj7O-bhgAVXuIp0QRbq35Y-mqMWhdY3-UlRq2ppDetOQImYtNI0yZ3R6VRGA27rQB2pe_UdBtCU
 ### Register
 POST {{url_dev}}/auth/register
 Content-Type: application/json
@@ -35,7 +35,7 @@ shop-id: 66bf14315d608930a45b9605
 Authorization: {{access_token}}
 
 ### get published products by shop
-GET {{url_dev}}/shop/product/published
+GET {{url_dev}}/shop/published
 shop-id: 66bf14315d608930a45b9605
 Authorization:  {{access_token}}
 
@@ -50,7 +50,7 @@ shop-id: 66bf14315d608930a45b9605
 Authorization: {{access_token}}
 
 ###publish product by shop
-PUT {{url_dev}}/shop/product/publish/66cf57e57cedbd17806aed1d
+PUT {{url_dev}}/product/publish/66cf57e57cedbd17806aed1d
 shop-id: 66bf14315d608930a45b9605
 Authorization: {{access_token}}
 
@@ -60,8 +60,9 @@ GET {{url_dev}}/shop/product/searchs?keySearch=tablet
 
 ### getAllProducts by user
 
-GET {{url_dev}}/shop/product
-
+GET {{url_dev}}/product
+shop-id: 66bf14315d608930a45b9605
+Authorization: {{access_token}}
 
 ### get product by id
 GET {{url_dev}}/shop/product/66cb4ec6205f489c7c50110c
@@ -85,3 +86,47 @@ Content-Type: application/json
         "model": "newest"
     }
 }
+
+
+### create discount code
+POST {{url_dev}}/discount
+shop-id: 66bf14315d608930a45b9605
+Authorization: {{access_token}}
+Content-Type: application/json
+ 
+ {
+    "name": "Halloween  3discount",
+    "code": "HALLOWEEN5",
+    "type": "fixed",
+    "value": 500,
+    "max_value": 0,
+    "status": true,
+    "start":  "2024-10-10T14:48:00.000Z",
+    "end":  "2024-10-17T14:48:00.000Z",
+    "uses": 100,
+    "min_order": 0,
+    "limit": 1,
+    "applicable_type": "specific",
+    "applicable_product": ["66cb4ec6205f489c7c50110c", "66cf374ec54a069d811e4723","66cf57e57cedbd17806aed1d" ],
+    "applicable_category": [],
+    "isPublished": false
+ }
+
+
+### get product by discode code
+GET {{url_dev}}/discount/product/HALLOWEEN3?shop=66bf14315d608930a45b9605
+
+
+### get all discount codes by shop
+GET {{url_dev}}/discount/66bf14315d608930a45b9605
+
+### get discount amount 
+POST {{url_dev}}/discount/amount
+shop-id: 66bf14315d608930a45b9605   
+Authorization: {{access_token}}
+Content-Type: application/json
+
+{
+    "code": "HALLOWEEN5",
+    "products": [  {"productID":"66cf374ec54a069d811e4723","quantity": 5,"price":12000}, {"productID":"66cf57e57cedbd17806aed1d","quantity": 2,"price":1000} ]
+}   
