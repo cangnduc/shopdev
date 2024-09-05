@@ -4,11 +4,11 @@ const tokenGenerator = (payload, publicKey, privateKey) => {
   try {
     const accessToken = jwt.sign(payload, privateKey, {
       algorithm: "RS256",
-      expiresIn: "1d",
+      expiresIn: "7d",
     });
     const refreshToken = jwt.sign(payload, privateKey, {
       algorithm: "RS256",
-      expiresIn: "7d",
+      expiresIn: "14d",
     });
     // jwt.verify(accessToken, publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
     //     if(err) {

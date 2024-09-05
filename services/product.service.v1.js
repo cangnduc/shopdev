@@ -181,7 +181,24 @@ class ProductFactory {
       .lean()
       .exec();
   }
-  static async getProductById(productID) {
+  static async getProductById(productID, populate = true) {
+    const unSelect = [
+      "isDraft",
+      "isPublished",
+      "createdAt",
+      "updatedAt",
+      "__v",
+    ];
+
+    let query = product.findOne({ _id: new Types.ObjectId(productID) });
+
+    if (populate) {
+      query = query.populate("shop", "email -_id");
+    }
+
+    return await query.select(convertArrayToObject0(unSelect)).lean().exec();
+  }
+  static async getProductsByIDs(productIDs) {
     const unSelect = [
       "isDraft",
       "isPublished",
@@ -190,8 +207,10 @@ class ProductFactory {
       "__v",
     ];
     return await product
-      .findOne({ _id: new Types.ObjectId(productID) })
-      .populate("shop", "email -_id")
+      .find({
+        _id: { $in: productIDs.map((id) => new Types.ObjectId(id)) },
+      })
+
       .select(convertArrayToObject0(unSelect))
       .lean()
       .exec();
@@ -241,7 +260,9 @@ class Product {
 
       return newProduct;
     } catch (error) {
-      throw new BadRequestError("Error creating product");
+      throw new BadRequestError(
+        `Error create product, messge is ${error.message}`
+      );
     }
   }
   async updateProduct(productID, payload) {
@@ -293,9 +314,7 @@ class Electronic extends Product {
       throw new BadRequestError("Error creating electronic");
     }
     const newProduct = await super.createProduct(newElectronic._id);
-    if (!newProduct) {
-      throw new BadRequestError("Error creating product");
-    }
+
     await newElectronic.save();
     return newProduct;
   }

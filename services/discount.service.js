@@ -40,7 +40,7 @@ const { Types } = require("mongoose");
 const { BadRequestError, NotFoundError } = require("../helpers/errorResponse");
 const { discount } = require("../models/discount.model");
 const { queryProduct } = require("../models/product.model");
-const { find } = require("lodash");
+
 class DiscountService {
   static async findDiscountByCodeAndShop(code, shop) {
     const foundDiscount = await discount
@@ -161,9 +161,12 @@ class DiscountService {
     return true;
   }
   static async getDiscountAmount({ code, shop, userID, products = [] }) {
+    console.log("code", code);
+    console.log("shop", shop);
+    console.log("userID", userID);
+    console.log("products", products);
     try {
       const foundDiscount = await this.findDiscountByCodeAndShop(code, shop);
-      console.log("foundDiscount", foundDiscount);
 
       this.validateDiscount(foundDiscount, userID);
       let totalOrder = 0;

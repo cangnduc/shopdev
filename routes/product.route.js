@@ -15,7 +15,8 @@ router.get("/search/:keySearch", productController.searchProductByUser);
 router.get("/searchs", productController.searchsProductByUser);
 router.get("/", productController.getProductsByUser);
 router.get("/:productID", productController.getProductById);
-
+router.use(authentication);
+router.post("/", productController.createProduct);
 router.get("/delete", async (req, res) => {
   await product.deleteMany({});
   await clothing.deleteMany({});

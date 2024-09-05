@@ -14,7 +14,8 @@ router.use("/auth", require("./auth.route.js"));
 router.use("/shop", require("./shop.route.js"));
 router.use("/product", require("./product.route"));
 router.use("/discount", require("./discount.route"));
-
+router.use("/cart", require("./cart.route"));
+router.use("/checkout", require("./checkout.route"));
 router.get("/", async (req, res) => {
   res.json({
     message: "Welcome to Shopdev API",

@@ -1,5 +1,10 @@
 @url_dev=http://localhost:5054/api/v1
-@access_token = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YmYxNDMxNWQ2MDg5MzBhNDViOTYwNSIsImVtYWlsIjoid29ya2luZ2F0Z2Vtc0BnbWFpbC5jb20iLCJyb2xlIjpbInNob3AiXSwiaWF0IjoxNzI1NDYyNzk5LCJleHAiOjE3MjU1NDkxOTl9.FAaoo7mSg6cK0KpaJ6Fb5BX-uPnl67af8QnCJX8Zr0Oatf7Q3GneZMKJhmXaMCRCAUWrdvoqyDAfHaASePm_4b11nZdAsvzts9W8vmy6YqeRUv_WTqj-dtPLIJaSxHJhST2njGFgUgi-HCfDwkLv5ifJHJFjtmt6t7tASTfPODTEYSptnRQYbNVBepohTxmWDuIosS4ciHZqcbXOGIDXqwZtM7qunnhDxwMmt8bLYdDRnh4nyCrYCP9md5h9gL4vndm0cSx7xOp_JSqI6GOCfvLn8OTgdvgm3_rgFRs5Zm4CEeNr_z-Iv9PKumIQMdwdcbT3b8OK-EjaxT1_evpFI0OVUjwra80oHwPyxkoEB1YGwLWfcmPmTvxjJWZ96z-IRZcFnyPMtWP9PPgG3yprfWhhowXbV0efLUGj__ALuttMZRLJr-1gSPJJgRFVHlzx9SxFFzU9cvP2h69ZHRTWdjD657nh38aaLfUUxLbitPDRaZFRqpDDVP9L9p5FST2PwT0gAtDZJPejRimupIATqRyBcTevJnCNdVZT1Js9ii6T3ckyUIccX2c3Um-LFYE_QlGdBWKi3iqaq97l8MgN2NjvmMYUMUXJtj7O-bhgAVXuIp0QRbq35Y-mqMWhdY3-UlRq2ppDetOQImYtNI0yZ3R6VRGA27rQB2pe_UdBtCU
+@access_token = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YmYxNDMxNWQ2MDg5MzBhNDViOTYwNSIsImVtYWlsIjoid29ya2luZ2F0Z2Vtc0BnbWFpbC5jb20iLCJyb2xlIjpbInNob3AiXSwiaWF0IjoxNzI1NTUwNjIxLCJleHAiOjE3MjYxNTU0MjF9.YwJ3hJyPuA61uK-Ym8XDk7NLu23Mlg6616C44dbpcOB9w36iZo2ZguwUwJUjDkQ5ziNUxuDEuV5a8DzMg5svfyNjRpNTeOWHneOB3HEI7hwVkaIYJvXUocAaT1vuiXH2K4UPMn4KU0iW2rGeNmkE_Ug_i5aMUbZ6Z0LrTcZTwOYUbgbbEEKvY9xHmfc5qNfdEEM56Kl4LB_VZxbatU6f20sixKRh66kpXlPg63RDa9MMCbi9dU4JYuKOfCbQ0p9anRm76Ln89f3TsbkGS2mSb5OFUoiNongfoSdvTB7_zuV-UZRtignfEr7a9PLlralXapZragsmHEyGpJNk2RyRDHA90790UFsgA3kaQJOs7EW5DLgak-N6UVoSla_OS3cqA967IDBM0y_IL7yYxOQzgslV-cYaSz4LhTM9dBTJ05NiZzPNyC5Xx1X5jX-u24Y9PGGQ2lJezB6IwBFflRwCJjbjTXmUHUWBPbTF0mjOLNVhHHP9PS-ABX1XDvpx8CnqRemeRTA62RhgX_DD6ucQASkMSbJAAkQlzyMCGhDgMgdi703-r-CL-FbDkEVD0euJCPEHL2JsAiz8GzxsAjDU6L96Nk7SIkKUKbqeHQk7boL296U0z3m3E2uYU2JTTPz-HIhvmUcw8ggk_Tj3MOM6zhCgZluFEu3ACm-L_geiy-M
+
+@access_token1 = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDljYWNkNjc3OWRiZjA0OTI5Y2QzNCIsImVtYWlsIjoid29ya2luZ2F0Z2VtczFAZ21haWwuY29tIiwicm9sZXMiOlsic2hvcCJdLCJpYXQiOjE3MjU1NDkyNjEsImV4cCI6MTcyNjE1NDA2MX0.MnsLEF31tGXHzZSzMw_POPDJTxz4T1GQjWuer7QDRINl3viPw-c7Q2wKGWRxPEsIsrCqy3GOxofZvtiGb9AWtSdRo6WOXiotTh-OoD1YbzNrxTHV70mE7LUtoXlMtOZwQxgUzK7yVooDjayKUEGeHUuf0IqHIkp86tR55p0H6VuA8cjfWfRnp7sL2GOFN5BvUkszJejr48wCj0I7symwX6CV0omvzQO-jkVO6-qHp3lVVrRP5Pdak7c9IbZ95ggDvIN8kOy7g_GSVxXy1xOItovpb5QjeiOaaczokcujgMiJMgRtU2_YgMWh2X0ho-Vl5Dpah-TLqfI9RyEFEjL4u17x9nLpUxIx5Y6atlbqyYAChugesyn3ycSfMh4BS3c9qpRsb4t9DduAniHQmp6xvYYeNQvJUjfW3CCs40rZ8v9a039iz92vQ6VKZ4uwoyvSRoF6FXuu055ZorPMXFH3qwfRBwTwS1_uFKc8EGBr1uVRXZJQzf145ehib7qsui2LG0muaTWHTvrY7PQhrzPi02E2WcUcCQtY02NhVJutyex2gyI8W3qhf-8ngPuzaOUIaWPP6T6ChkMMDZx0Hw5YRtRUirD1Mt-5wkrDY0ummLMHMgXgyyGoTIus1ysTTIApjoWfADL-wJ_hSvFpU0sZZBTWUIA0rg8-EilWsC4mq6o
+
+@shop1 = 66bf14315d608930a45b9605
+@shop2 = 66d9cacd6779dbf04929cd34
 ### Register
 POST {{url_dev}}/auth/register
 Content-Type: application/json
@@ -67,7 +72,27 @@ Authorization: {{access_token}}
 ### get product by id
 GET {{url_dev}}/shop/product/66cb4ec6205f489c7c50110c
 
+### create product
+POST {{url_dev}}/product
+shop-id: {{shop2}}
+Authorization: {{access_token1}}
+Content-Type: application/json
 
+{
+    "name": "iphone 15",
+    "price": 1200,
+    "description": "Iphone 15 is the best phone in the world",
+    "type": "electronic",
+    "image": "https://www.google.com",
+    "isPublished": true,
+    "thumbnail": "product thumbnail",
+    "quantity": 10,
+    "attributes": {
+        "manufacturer": "xxx",
+        "model": "oldest",
+        "color": "blue"
+    }
+}
 #### update product by id
 PATCH {{url_dev}}/shop/66d34cb985710b29cd3249fd
 shop-id: 66bf14315d608930a45b9605
@@ -90,8 +115,8 @@ Content-Type: application/json
 
 ### create discount code
 POST {{url_dev}}/discount
-shop-id: 66bf14315d608930a45b9605
-Authorization: {{access_token}}
+shop-id: {{shop2}}
+Authorization: {{access_token1}}
 Content-Type: application/json
  
  {
@@ -120,7 +145,7 @@ GET {{url_dev}}/discount/product/HALLOWEEN3?shop=66bf14315d608930a45b9605
 ### get all discount codes by shop
 GET {{url_dev}}/discount/66bf14315d608930a45b9605
 
-### get discount amount 
+### get discount amount {code, shop, user, products}
 POST {{url_dev}}/discount/amount
 shop-id: 66bf14315d608930a45b9605   
 Authorization: {{access_token}}
@@ -130,3 +155,87 @@ Content-Type: application/json
     "code": "HALLOWEEN5",
     "products": [  {"productID":"66cf374ec54a069d811e4723","quantity": 5,"price":12000}, {"productID":"66cf57e57cedbd17806aed1d","quantity": 2,"price":1000} ]
 }   
+
+
+### add product to cart
+POST {{url_dev}}/cart
+shop-id: 66bf14315d608930a45b9605
+Authorization: {{access_token}}
+Content-Type: application/json
+
+{
+    "product": {
+    "productID": "66d9d4c982c17acf2dda0e75",
+                "quantity": 2,
+                "price": 1000}
+  
+}
+
+### get cart by user
+GET {{url_dev}}/cart
+shop-id: 66bf14315d608930a45b9605
+Authorization: {{access_token}}
+
+### update item in cart by user
+PUT {{url_dev}}/cart
+shop-id: 66bf14315d608930a45b9605
+Authorization: {{access_token}}
+Content-Type: application/json
+
+{
+    "product": {
+        "productID": "66d34cb985710b29cd3249fd",
+        "quantity": -17
+    }
+  
+}
+
+
+### POST checkout
+POST {{url_dev}}/checkout
+shop-id: 66bf14315d608930a45b9605
+Authorization: {{access_token}}
+Content-Type: application/json
+
+{
+   "cartID" :"66d9bb8c2eb9eed555f6a17f",
+   "userID": 1001,
+   "shop_orders": [
+    {
+        "shopID": "66bf14315d608930a45b9605",
+      
+        "items": [
+            {
+                "productID": "66cf374ec54a069d811e4723",
+                "quantity": 5,
+                "price": 12000
+            }
+          
+        ],
+        "shop_discounts": [{
+            "code": "SAMPLECODE",
+            "discountID": "66d807428f128e5019d72a2c",
+            "shopID": "66bf14315d608930a45b9605"
+        }]
+   },
+   {
+        "shopID": "66d9cacd6779dbf04929cd34",
+      
+        "items": [
+            {
+                "productID": "66d9d51e77d48cee74201830",
+                "quantity": 5,
+                "price": 12000
+            },
+            {
+                "productID": "66d9d4c982c17acf2dda0e75",
+                "quantity": 2,
+                "price": 1000
+            }
+        ],
+        "shop_discounts": []
+   }
+   ]
+  
+  
+}

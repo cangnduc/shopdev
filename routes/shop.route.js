@@ -14,8 +14,6 @@ router.get("/published", productController.getPublishedByShop);
 
 router.use(authentication);
 
-router.post("/", productController.createProduct);
-
 router.get("/drafts", productController.getDraftsByShop);
 router.patch("/:productID", productController.updateProduct);
 router.put("/publish/:productID", productController.publishProduct);
