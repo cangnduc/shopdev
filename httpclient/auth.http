@@ -121,9 +121,10 @@ Content-Type: application/json
  
  {
     "name": "Halloween  3discount",
-    "code": "HALLOWEEN5",
-    "type": "fixed",
-    "value": 500,
+    "code": "Shop2",
+    "type": "percent",
+    "value": 5,
+    "min_order": 0,
     "max_value": 0,
     "status": true,
     "start":  "2024-10-10T14:48:00.000Z",
@@ -132,7 +133,7 @@ Content-Type: application/json
     "min_order": 0,
     "limit": 1,
     "applicable_type": "specific",
-    "applicable_product": ["66cb4ec6205f489c7c50110c", "66cf374ec54a069d811e4723","66cf57e57cedbd17806aed1d" ],
+    "applicable_product": ["66d9d51e77d48cee74201830", "66d9d4c982c17acf2dda0e75"],
     "applicable_category": [],
     "isPublished": false
  }
@@ -155,7 +156,18 @@ Content-Type: application/json
     "code": "HALLOWEEN5",
     "products": [  {"productID":"66cf374ec54a069d811e4723","quantity": 5,"price":12000}, {"productID":"66cf57e57cedbd17806aed1d","quantity": 2,"price":1000} ]
 }   
+### add or remove product to discount
+POST {{url_dev}}/discount/update/product
+shop-id: {{shop2}}   
+Authorization: {{access_token1}}
+Content-Type: application/json
 
+{
+    "code": "Shop2",
+    "action": "remove",
+    "productID": "66d9d4c982c17acf2dda0e75",
+    "shop": "66d9cacd6779dbf04929cd34"
+}
 
 ### add product to cart
 POST {{url_dev}}/cart
@@ -208,7 +220,7 @@ Content-Type: application/json
             {
                 "productID": "66cf374ec54a069d811e4723",
                 "quantity": 5,
-                "price": 12000
+                "price": 10000
             }
           
         ],
@@ -233,7 +245,11 @@ Content-Type: application/json
                 "price": 1000
             }
         ],
-        "shop_discounts": []
+        "shop_discounts": [{
+            "code": "Shop2",
+            "discountID": "66dc4e167b5631ff9009808c",
+            "shopID": "66d9cacd6779dbf04929cd34"
+        }]
    }
    ]
   

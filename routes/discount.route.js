@@ -8,4 +8,5 @@ router.get("/product/:code", DiscountController.getProductByDiscount);
 router.use(authentication);
 router.post("/", DiscountController.createDiscount);
 router.post("/amount", DiscountController.getDiscountAmount);
+router.post("/update/product", DiscountController.addOrRemoveProductToDiscount);
 module.exports = router;

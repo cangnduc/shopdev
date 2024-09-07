@@ -51,7 +51,7 @@ const DiscountService = require("../services/discount.service");
   }
 */
 class CheckoutController {
-  reviewCheckout = async (req, res) => {
+  async reviewCheckout(req, res) {
     let { ...data } = req.body;
     const userID = req.user.id;
 
@@ -86,12 +86,15 @@ class CheckoutController {
         }
       }
     }
+
+    // Initialize the total values
+    data.price = 0;
+    data.discount = 0;
+    data.finalPrice = 0;
+
     // for every shop_order in shop_orders, calculate total price and discount if shop_order.shop_discounts exist
     // if shop_order.shop_discounts exist, return shop_order.total_price, shop_order.discount, shop_order.total
     for (const shopOrder of data.shop_orders) {
-      let price = 0;
-      let discount = 0;
-      let total = 0;
       const products = shopOrder.items.map((item) => ({
         product: item.productID,
         quantity: item.quantity,
@@ -104,39 +107,33 @@ class CheckoutController {
           userID,
           products,
         });
-
-        price = discountAmount.totalOrder;
-        discount = discountAmount.discountAmount;
-        total = discountAmount.total;
-        shopOrder.price = price;
-        shopOrder.discount = discount;
-        shopOrder.total += total;
-        data.price += shopOrder.total;
+        console.log("discountAmount", discountAmount);
+        shopOrder.price = discountAmount.totalOrder;
+        shopOrder.discount = discountAmount.discountAmount;
+        shopOrder.total =
+          discountAmount.totalOrder - discountAmount.discountAmount;
+        data.price += shopOrder.price;
         data.discount += shopOrder.discount;
+        data.finalPrice += shopOrder.total;
       } else {
-        price = products.reduce((acc, product) => {
+        const price = products.reduce((acc, product) => {
           return acc + product.price * product.quantity;
         }, 0);
 
         shopOrder.price = price;
-        shopOrder.total += price;
-        data.finalPrice += shopOrder.price;
+        shopOrder.discount = 0;
+        shopOrder.total = price;
+        data.price += price;
+        data.discount += 0;
+        data.finalPrice += price;
       }
     }
-    data.payPrice = data.finalPrice - data.discount;
-    res.json({
+
+    return new SuccessResponse({
       message: "Checkout review successfully",
       data: data,
-    });
-    // const checkout = await CheckoutService.reviewCheckout({
-    //   userID,
-    //   cart,
-    // });
-    // return new SuccessResponse({
-    //   message: "Checkout review successfully",
-    //   data: checkout,
-    // }).send(res);
-  };
+    }).send(res);
+  }
 }
 
 module.exports = wrapAsyncRoutes(new CheckoutController());

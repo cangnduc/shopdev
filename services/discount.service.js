@@ -42,13 +42,17 @@ const { discount } = require("../models/discount.model");
 const { queryProduct } = require("../models/product.model");
 
 class DiscountService {
-  static async findDiscountByCodeAndShop(code, shop) {
-    const foundDiscount = await discount
-      .findOne({
-        code: code,
-        shop: new Types.ObjectId(shop),
-      })
-      .lean();
+  static async findDiscountByCodeAndShop(code, shop, lean = true) {
+    const foundDiscount = await discount.findOne({
+      code: code,
+      shop: new Types.ObjectId(shop),
+    });
+    if (!foundDiscount) {
+      throw new NotFoundError("Discount not found");
+    }
+    if (lean) {
+      return foundDiscount.toObject();
+    }
     return foundDiscount;
   }
   static async createDiscount(payload) {
@@ -137,71 +141,68 @@ class DiscountService {
     }
   }
   static async validateDiscount(foundDiscount, userID) {
-    if (!foundDiscount) {
-      return new NotFoundError("Discount not found");
+    if (foundDiscount == null) {
+      throw new NotFoundError("Discount not found");
     }
     if (!foundDiscount.status) {
-      return new BadRequestError("Discount not active");
+      throw new BadRequestError("Discount not active");
     }
     if (foundDiscount.start > new Date()) {
-      return new BadRequestError("Discount not started yet");
+      throw new BadRequestError("Discount not started yet");
     }
     if (foundDiscount.end < new Date()) {
-      return new BadRequestError("Discount expired");
+      throw new BadRequestError("Discount expired");
     }
     if (foundDiscount.uses <= foundDiscount.used) {
-      return new BadRequestError("Discount limit reached");
+      throw new BadRequestError("Discount limit reached");
     }
-    // check if the discount is applicable to all all users when the array is empty, else check if the user is applicable
-
-    // if (!foundDiscount.applicable_user.includes(userID)) {
-    //   throw new BadRequestError("Discount not applicable to user");
-    // }
+    // Additional checks as needed...
 
     return true;
   }
   static async getDiscountAmount({ code, shop, userID, products = [] }) {
-    console.log("code", code);
-    console.log("shop", shop);
-    console.log("userID", userID);
-    console.log("products", products);
-    try {
-      const foundDiscount = await this.findDiscountByCodeAndShop(code, shop);
+    const foundDiscount = await this.findDiscountByCodeAndShop(code, shop);
+    await this.validateDiscount(foundDiscount, userID);
 
-      this.validateDiscount(foundDiscount, userID);
-      let totalOrder = 0;
-      if (foundDiscount.min_order > 0) {
-        totalOrder = products.reduce((acc, product) => {
-          return acc + product.price * product.quantity;
-        }, 0);
+    let applicableTotal = 0;
+    let nonApplicableTotal = 0;
 
-        if (totalOrder < foundDiscount.min_order) {
-          throw new BadRequestError("Minimum order not reached");
+    if (foundDiscount.applicable_type === "specific") {
+      products.forEach((product) => {
+        if (foundDiscount.applicable_product.includes(product.product)) {
+          applicableTotal += product.price * product.quantity;
+        } else {
+          nonApplicableTotal += product.price * product.quantity;
         }
-      } else {
-        totalOrder = products.reduce((acc, product) => {
-          return acc + product.price * product.quantity;
-        }, 0);
-      }
-      const discountAmount =
-        foundDiscount.type === "percent"
-          ? foundDiscount.max_value === 0
-            ? (foundDiscount.value / 100) * totalOrder
-            : Math.min(
-                (foundDiscount.value / 100) * totalOrder,
-                foundDiscount.max_value
-              )
-          : foundDiscount.value;
-      console.log("totalOrder", totalOrder);
-      console.log("discountAmount", discountAmount);
-      return {
-        totalOrder,
-        discountAmount,
-        total: totalOrder - discountAmount,
-      };
-    } catch (error) {
-      throw new NotFoundError(`Discount error ${error.message}`);
+      });
+    } else {
+      applicableTotal = products.reduce(
+        (acc, product) => acc + product.price * product.quantity,
+        0
+      );
     }
+
+    const totalOrder = applicableTotal + nonApplicableTotal;
+
+    if (foundDiscount.min_order > 0 && totalOrder < foundDiscount.min_order) {
+      throw new BadRequestError("Minimum order not reached");
+    }
+
+    const discountAmount =
+      foundDiscount.type === "percent"
+        ? foundDiscount.max_value === 0
+          ? (foundDiscount.value / 100) * applicableTotal
+          : Math.min(
+              (foundDiscount.value / 100) * applicableTotal,
+              foundDiscount.max_value
+            )
+        : Math.min(foundDiscount.value, applicableTotal);
+
+    return {
+      totalOrder,
+      discountAmount,
+      total: totalOrder - discountAmount,
+    };
   }
   static async deleteDiscount(code, shop) {
     try {
@@ -210,7 +211,7 @@ class DiscountService {
         shop: new Types.ObjectId(shop),
       });
       if (!result) {
-        throw new NotFoundError("Discount not found");
+        return new NotFoundError("Discount not found");
       }
       return result;
     } catch (error) {
@@ -245,6 +246,29 @@ class DiscountService {
     } catch (error) {
       throw new NotFoundError(`Discount error ${error.message}`);
     }
+  }
+  static async addOrRemoveProductToDiscount({
+    code,
+    shop,
+    action = "add",
+    productID,
+  }) {
+    const foundDiscount = await this.findDiscountByCodeAndShop(
+      code,
+      shop,
+      false
+    );
+
+    if (action === "add") {
+      foundDiscount.applicable_product.push(productID);
+    } else {
+      foundDiscount.applicable_product =
+        foundDiscount.applicable_product.filter(
+          (id) => id.toString() !== productID.toString()
+        );
+    }
+    await foundDiscount.save();
+    return foundDiscount;
   }
   static async updateDiscount(code, shop, payload) {
     try {

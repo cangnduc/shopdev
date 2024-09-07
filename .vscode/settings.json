@@ -1,0 +1,6 @@
+{
+  "files.autoSave": "onFocusChange",
+  "cursor.aipreview.enabled": false,
+  "cursor.chat.alwaysSearchWeb": true,
+  "cursor.chat.defaultNoContext": false
+}

@@ -132,6 +132,20 @@ class DiscountController {
       data: result,
     }).send(res);
   }
+  async addOrRemoveProductToDiscount(req, res) {
+    const { code, shop, action, productID } = req.body;
+
+    const result = await DiscountService.addOrRemoveProductToDiscount({
+      code,
+      shop,
+      action,
+      productID,
+    });
+    new SuccessResponse({
+      message: "add or remove product to discount successful",
+      data: result,
+    }).send(res);
+  }
 }
 
 module.exports = wrapAsyncRoutes(new DiscountController());
